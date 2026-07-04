@@ -21,6 +21,7 @@ from app.config.settings import get_settings  # noqa: E402
 from app.embeddings.embedding_model import get_embedding_model  # noqa: E402
 from app.ingestion.chunker import chunk_pages  # noqa: E402
 from app.ingestion.excel_loader import load_excel_pages  # noqa: E402
+from app.ingestion.markdown import convert_pages_to_markdown  # noqa: E402
 from app.ingestion.pdf_loader import load_pdf_pages  # noqa: E402
 from app.utils.logger import get_logger  # noqa: E402
 from app.vectorstore.chroma_store import build_vectorstore  # noqa: E402
@@ -50,7 +51,9 @@ def main() -> None:
     if pdf_dir.exists():
         for pdf_path in sorted(pdf_dir.glob("*.pdf")):
             logger.info("Loading PDF source: %s", pdf_path)
-            all_pages.extend(load_pdf_pages(pdf_path))
+            pdf_pages = load_pdf_pages(pdf_path)
+            markdown_pages = convert_pages_to_markdown(pdf_pages)
+            all_pages.extend(markdown_pages)
 
     excel_dir = Path(settings.excel_path)
     if not excel_dir.is_absolute():
